@@ -1,0 +1,22 @@
+# Environment files
+.env
+.env.*
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# IDE files
+.gemini/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

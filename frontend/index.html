@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TubeReplies - YouTube Comment Intelligence & AI Replier</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Style -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-brands fa-youtube"></i>
+                </div>
+                <h2>Tube<span>Replies</span></h2>
+            </div>
+            
+            <nav class="navigation">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </button>
+                <button class="nav-btn" data-tab="worth-replying">
+                    <i class="fa-solid fa-reply-all"></i> Worth Replying <span class="badge" id="badge-worth-replying">0</span>
+                </button>
+                <button class="nav-btn" data-tab="all-comments">
+                    <i class="fa-solid fa-comments"></i> All Comments
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>Powered by Gemini 3.5 Flash</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Search Bar -->
+            <header class="app-header">
+                <div class="search-section">
+                    <form id="url-form" class="url-input-container">
+                        <i class="fa-solid fa-link input-icon"></i>
+                        <input type="text" id="video-url" placeholder="Paste YouTube video URL here (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)" required>
+                        <button type="submit" class="btn-fetch" id="btn-fetch-id">
+                            <span>Analyze</span>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </button>
+                    </form>
+                    <div class="quick-examples">
+                        <span>Try examples:</span>
+                        <button type="button" class="example-btn" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Rickastley - Never Gonna Give You Up</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard / Details Container -->
+            <div class="content-body">
+                <!-- Welcome View -->
+                <div id="welcome-view" class="center-state">
+                    <div class="welcome-card">
+                        <div class="welcome-illustration">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        </div>
+                        <h1>Optimize Your YouTube Engagement with TubeReplies</h1>
+                        <p>Analyze thousands of comments instantly. Our AI automatically filters out spam, clusters similar questions, groups comments into categories, and draft perfect context-aware replies for you in seconds.</p>
+                        <div class="guide-steps">
+                            <div class="step">
+                                <div class="step-num">1</div>
+                                <h3>Paste Video URL</h3>
+                            </div>
+                            <div class="step">
+                                <div class="step-num">2</div>
+                                <h3>Analyze Engagement</h3>
+                            </div>
+                            <div class="step">
+                                <div class="step-num">3</div>
+                                <h3>Review AI Replies</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-view" class="center-state hidden">
+                    <div class="loader-container">
+                        <div class="premium-spinner"></div>
+                        <h2>Analyzing Video Comments...</h2>
+                        <p id="loading-status">Fetching comments from YouTube API...</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="load-progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-view" class="center-state hidden">
+                    <div class="error-card">
+                        <div class="error-icon">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h2>Analysis Failed</h2>
+                        <p id="error-message">Could not fetch or analyze comments. Please ensure the URL is valid and the backend is running.</p>
+                        <button type="button" class="btn-retry" onclick="location.reload()">
+                            <i class="fa-solid fa-rotate-left"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results View -->
+                <div id="results-view" class="results-layout hidden">
+                    <!-- Dashboard Statistics Overview -->
+                    <section id="dashboard-section" class="tab-content active">
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-title">Total Comments Fetched</span>
+                                    <div class="metric-icon blue"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                                </div>
+                                <div class="metric-value" id="stat-total">0</div>
+                                <div class="metric-desc">Fetched from current feed</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-title">Spam Comments Blocked</span>
+                                    <div class="metric-icon red"><i class="fa-solid fa-shield-halved"></i></div>
+                                </div>
+                                <div class="metric-value" id="stat-spam">0</div>
+                                <div class="metric-desc">Filtered out of final review</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-title">Worth Replying (Clusters)</span>
+                                    <div class="metric-icon purple"><i class="fa-solid fa-sparkles"></i></div>
+                                </div>
+                                <div class="metric-value" id="stat-worth">0</div>
+                                <div class="metric-desc">Top engagement threads ready for replies</div>
+                            </div>
+                        </div>
+
+                        <!-- Category Distribution Panel -->
+                        <div class="chart-and-recent-container">
+                            <div class="card chart-card">
+                                <h3><i class="fa-solid fa-chart-column"></i> Comment Categories</h3>
+                                <div class="category-distribution" id="category-bars">
+                                    <!-- Dynamic bars rendered via script -->
+                                </div>
+                            </div>
+                            
+                            <div class="card welcome-back-card">
+                                <h3><i class="fa-solid fa-circle-info"></i> How it works</h3>
+                                <div class="info-list">
+                                    <div class="info-item">
+                                        <div class="info-num">1</div>
+                                        <p><strong>Clustering:</strong> DBSCAN groups similar comments based on text embeddings (e.g. repeated jokes or questions).</p>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-num">2</div>
+                                        <p><strong>Classification:</strong> The system tags comments into <strong>Questions</strong>, <strong>Positive Support</strong>, <strong>Complaints</strong>, <strong>Funny jokes</strong>, or <strong>Other</strong>.</p>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-num">3</div>
+                                        <p><strong>Smart Replies:</strong> Gemini generates customized, contextual drafts for representative comments from each cluster.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Comments Listing View -->
+                    <section id="comments-section" class="tab-content">
+                        <!-- Filters Header -->
+                        <div class="filters-header">
+                            <h2 id="section-title">Worth Replying Comments</h2>
+                            <div class="filter-controls" id="filter-controls">
+                                <button class="filter-btn active" data-filter="all">All (<span id="cnt-all">0</span>)</button>
+                                <button class="filter-btn" data-filter="question"><i class="fa-solid fa-question"></i> Questions (<span id="cnt-question">0</span>)</button>
+                                <button class="filter-btn" data-filter="positive"><i class="fa-solid fa-heart"></i> Positive (<span id="cnt-positive">0</span>)</button>
+                                <button class="filter-btn" data-filter="complaint"><i class="fa-solid fa-circle-exclamation"></i> Complaints (<span id="cnt-complaint">0</span>)</button>
+                                <button class="filter-btn" data-filter="funny"><i class="fa-solid fa-face-laugh"></i> Funny (<span id="cnt-funny">0</span>)</button>
+                                <button class="filter-btn" data-filter="other">Other (<span id="cnt-other">0</span>)</button>
+                            </div>
+                        </div>
+
+                        <!-- Main Comments List -->
+                        <div class="comments-list" id="comments-list-container">
+                            <!-- Dynamic cards rendered here -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Script Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
