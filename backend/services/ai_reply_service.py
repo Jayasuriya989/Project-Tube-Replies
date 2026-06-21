@@ -47,8 +47,11 @@ Rules:
 def generate_ai_replies_batch(comments_text_list):
     """
     Given a list of comment texts, returns a list of suggested reply texts of the same length.
-    If a reply generation fails or rate limited, returns None for those indices.
+    Raises ValueError if API Key is missing or if the generation fails.
     """
+    if not GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY environment variable is missing or empty. Please add it to your Hugging Face Space Secrets (under Settings) or local .env file.")
+
     replies = [None] * len(comments_text_list)
     if not comments_text_list:
         return replies
@@ -91,5 +94,6 @@ You MUST return your output in JSON format matching this exact schema:
                         replies[idx] = item["reply"].strip()
     except Exception as e:
         print("Gemini Batch Error:", e)
+        raise ValueError(f"Gemini API Error: {str(e)}. Please check your API key and quota status.")
 
     return replies

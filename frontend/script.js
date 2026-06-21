@@ -157,7 +157,8 @@ async function analyzeVideo(url) {
         const response = await fetch(`${BACKEND_URL}/comments?video_url=${encodeURIComponent(url)}&limit=${limit}`);
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
