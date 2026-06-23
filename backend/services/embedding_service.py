@@ -1,16 +1,18 @@
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
-)
+# Load once when server starts
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def generate_embeddings(comments):
+    """
+    Convert comment text into vectors
+    """
 
-    texts = [
-        comment.clean_text
-        for comment in comments
-    ]
+    texts = []
+
+    for comment in comments:
+        texts.append(comment.clean_text)
 
     embeddings = model.encode(
         texts,
