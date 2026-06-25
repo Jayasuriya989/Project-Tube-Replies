@@ -3,206 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TubeReplies - YouTube Comment Intelligence & AI Replier</title>
-    
-    <!-- Google Fonts -->
+    <title>TubeReplies — YouTube AI Comment Manager</title>
+    <meta name="description" content="Reply to YouTube comments 10x faster with AI. Connect your channel, analyze top comments, generate smart replies, and post them instantly.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- CSS Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
-    <!-- FontAwesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="logo-area">
-                <div class="logo-icon">
-                    <i class="fa-brands fa-youtube"></i>
-                </div>
-                <h2>Tube<span>Replies</span></h2>
-            </div>
-            
-            <nav class="navigation">
-                <button class="nav-btn active" data-tab="dashboard">
-                    <i class="fa-solid fa-chart-pie"></i> Dashboard
-                </button>
-                <button class="nav-btn" data-tab="worth-replying">
-                    <i class="fa-solid fa-reply-all"></i> Worth Replying <span class="badge" id="badge-worth-replying">0</span>
-                </button>
-                <button class="nav-btn" data-tab="all-comments">
-                    <i class="fa-solid fa-comments"></i> All Comments
-                </button>
-            </nav>
 
-            <div class="sidebar-footer">
-                <p>Powered by Gemini 3.5 Flash</p>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Header Search Bar -->
-            <header class="app-header">
-                <div class="search-section">
-                    <form id="url-form" class="url-input-container">
-                        <i class="fa-solid fa-link input-icon"></i>
-                        <input type="text" id="video-url" placeholder="Paste YouTube video URL here (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)" required>
-                        <button type="submit" class="btn-fetch" id="btn-fetch-id">
-                            <span>Analyze</span>
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </button>
-                    </form>
-                    <div class="quick-examples">
-                        <span>Try examples:</span>
-                        <button type="button" class="example-btn" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Rickastley - Never Gonna Give You Up</button>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Dashboard / Details Container -->
-            <div class="content-body">
-                <!-- Welcome View -->
-                <div id="welcome-view" class="center-state">
-                    <div class="welcome-card">
-                        <div class="welcome-illustration">
-                            <i class="fa-solid fa-magnifying-glass-chart"></i>
-                        </div>
-                        <h1>Optimize Your YouTube Engagement with TubeReplies</h1>
-                        <p>Analyze thousands of comments instantly. Our AI automatically filters out spam, clusters similar questions, groups comments into categories, and draft perfect context-aware replies for you in seconds.</p>
-                        <div class="guide-steps">
-                            <div class="step">
-                                <div class="step-num">1</div>
-                                <h3>Paste Video URL</h3>
-                            </div>
-                            <div class="step">
-                                <div class="step-num">2</div>
-                                <h3>Analyze Engagement</h3>
-                            </div>
-                            <div class="step">
-                                <div class="step-num">3</div>
-                                <h3>Review AI Replies</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Loading State -->
-                <div id="loading-view" class="center-state hidden">
-                    <div class="loader-container">
-                        <div class="premium-spinner"></div>
-                        <h2>Analyzing Video Comments...</h2>
-                        <p id="loading-status">Fetching comments from YouTube API...</p>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" id="load-progress"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Error State -->
-                <div id="error-view" class="center-state hidden">
-                    <div class="error-card">
-                        <div class="error-icon">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                        <h2>Analysis Failed</h2>
-                        <p id="error-message">Could not fetch or analyze comments. Please ensure the URL is valid and the backend is running.</p>
-                        <button type="button" class="btn-retry" onclick="location.reload()">
-                            <i class="fa-solid fa-rotate-left"></i> Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Results View -->
-                <div id="results-view" class="results-layout hidden">
-                    <!-- Dashboard Statistics Overview -->
-                    <section id="dashboard-section" class="tab-content active">
-                        <div class="metrics-grid">
-                            <div class="metric-card">
-                                <div class="metric-header">
-                                    <span class="metric-title">Total Comments Fetched</span>
-                                    <div class="metric-icon blue"><i class="fa-solid fa-cloud-arrow-down"></i></div>
-                                </div>
-                                <div class="metric-value" id="stat-total">0</div>
-                                <div class="metric-desc">Fetched from current feed</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-header">
-                                    <span class="metric-title">Spam Comments Blocked</span>
-                                    <div class="metric-icon red"><i class="fa-solid fa-shield-halved"></i></div>
-                                </div>
-                                <div class="metric-value" id="stat-spam">0</div>
-                                <div class="metric-desc">Filtered out of final review</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-header">
-                                    <span class="metric-title">Worth Replying (Clusters)</span>
-                                    <div class="metric-icon purple"><i class="fa-solid fa-sparkles"></i></div>
-                                </div>
-                                <div class="metric-value" id="stat-worth">0</div>
-                                <div class="metric-desc">Top engagement threads ready for replies</div>
-                            </div>
-                        </div>
-
-                        <!-- Category Distribution Panel -->
-                        <div class="chart-and-recent-container">
-                            <div class="card chart-card">
-                                <h3><i class="fa-solid fa-chart-column"></i> Comment Categories</h3>
-                                <div class="category-distribution" id="category-bars">
-                                    <!-- Dynamic bars rendered via script -->
-                                </div>
-                            </div>
-                            
-                            <div class="card welcome-back-card">
-                                <h3><i class="fa-solid fa-circle-info"></i> How it works</h3>
-                                <div class="info-list">
-                                    <div class="info-item">
-                                        <div class="info-num">1</div>
-                                        <p><strong>Clustering:</strong> DBSCAN groups similar comments based on text embeddings (e.g. repeated jokes or questions).</p>
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-num">2</div>
-                                        <p><strong>Classification:</strong> The system tags comments into <strong>Questions</strong>, <strong>Positive Support</strong>, <strong>Complaints</strong>, <strong>Funny jokes</strong>, or <strong>Other</strong>.</p>
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-num">3</div>
-                                        <p><strong>Smart Replies:</strong> Gemini generates customized, contextual drafts for representative comments from each cluster.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Comments Listing View -->
-                    <section id="comments-section" class="tab-content">
-                        <!-- Filters Header -->
-                        <div class="filters-header">
-                            <h2 id="section-title">Worth Replying Comments</h2>
-                            <div class="filter-controls" id="filter-controls">
-                                <button class="filter-btn active" data-filter="all">All (<span id="cnt-all">0</span>)</button>
-                                <button class="filter-btn" data-filter="question"><i class="fa-solid fa-question"></i> Questions (<span id="cnt-question">0</span>)</button>
-                                <button class="filter-btn" data-filter="positive"><i class="fa-solid fa-heart"></i> Positive (<span id="cnt-positive">0</span>)</button>
-                                <button class="filter-btn" data-filter="complaint"><i class="fa-solid fa-circle-exclamation"></i> Complaints (<span id="cnt-complaint">0</span>)</button>
-                                <button class="filter-btn" data-filter="funny"><i class="fa-solid fa-face-laugh"></i> Funny (<span id="cnt-funny">0</span>)</button>
-                                <button class="filter-btn" data-filter="other">Other (<span id="cnt-other">0</span>)</button>
-                            </div>
-                        </div>
-
-                        <!-- Main Comments List -->
-                        <div class="comments-list" id="comments-list-container">
-                            <!-- Dynamic cards rendered here -->
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </main>
+    <!-- ─── TOAST ─── -->
+    <div id="toast" class="toast">
+        <i class="toast-icon fa-solid fa-check-circle"></i>
+        <span id="toast-msg">Reply posted!</span>
     </div>
-    
-    <!-- Script Logic -->
+
+    <!-- ════════════════════════════════════
+         PAGE 1 · LANDING
+    ════════════════════════════════════ -->
+    <div id="page-landing" class="page active">
+
+        <!-- Nav -->
+        <nav class="land-nav">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-brands fa-youtube"></i></div>
+                <span class="logo-text">Tube<strong>Replies</strong></span>
+            </div>
+            <div class="land-nav-links">
+                <a href="#how">How it works</a>
+                <a href="#features">Features</a>
+            </div>
+            <button class="btn-primary sm" onclick="showPage('login')">
+                Get Started <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </nav>
+
+        <!-- Hero -->
+        <section class="hero" id="hero">
+            <div class="hero-glow g1"></div>
+            <div class="hero-glow g2"></div>
+            <div class="hero-glow g3"></div>
+
+            <div class="hero-inner">
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <span class="badge-pulse"></span>
+                        <i class="fa-solid fa-sparkles"></i>&nbsp; AI-Powered YouTube Comment Manager
+                    </div>
+                    <h1 class="hero-title">
+                        Reply to <span class="grad-text">YouTube Comments</span><br>
+                        10× Faster with AI
+                    </h1>
+                    <p class="hero-sub">
+                        Connect your channel, let Gemini AI analyze your top comments,
+                        craft perfect replies, and post them — all from one beautiful dashboard.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn-primary lg" onclick="showPage('login')">
+                            <i class="fa-brands fa-youtube"></i> Connect Your Channel
+                        </button>
+                        <button class="btn-ghost lg">
+                            <i class="fa-solid fa-circle-play"></i> Watch Demo
+                        </button>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hstat"><span class="hstat-n" id="stat-speed" data-target="10">0×</span><span class="hstat-l">Faster Replies</span></div>
+                        <div class="hstat-sep"></div>
+                        <div class="hstat"><span class="hstat-n" id="stat-spam" data-target="98">0%</span><span class="hstat-l">Spam Blocked</span></div>
+                        <div class="hstat-sep"></div>
+                        <div class="hstat"><span class="hstat-n">Gemini</span><span class="hstat-l">AI Powered</span></div>
+                    </div>
+                </div>
+
+                <!-- Floating Preview -->
+                <div class="hero-preview">
+                    <div class="preview-card" id="demo-preview-card">
+                        <div class="preview-titlebar">
+                            <div class="preview-dot rd"></div>
+                            <div class="preview-dot yl"></div>
+                            <div class="preview-dot gn"></div>
+                            <span>Interactive Live Sandbox</span>
+                        </div>
+                        <div class="preview-body">
+                            <div class="prev-comment">
+                                <div class="prev-avatar">T</div>
+                                <div class="prev-ctext">
+                                    <div class="prev-meta">
+                                        <span class="prev-name">TechFan2025</span>
+                                        <span class="prev-badge q">❓ Question</span>
+                                    </div>
+                                    <p>Can you make a tutorial on deploying this to AWS? This video was amazing! 🔥</p>
+                                    <div class="prev-stats"><i class="fa-solid fa-heart"></i> 234 &nbsp;·&nbsp; <i class="fa-solid fa-reply"></i> 45 replies</div>
+                                </div>
+                            </div>
+                            <div class="prev-ai" id="demo-ai-container">
+                                <div class="prev-ai-label"><i class="fa-solid fa-robot"></i> AI Reply Generated</div>
+                                <div id="demo-typing-area">
+                                    <div class="prev-ai-text" id="demo-ai-text">Great question! Yes, a full AWS deployment series is coming next week. Subscribe so you don't miss it! 🚀</div>
+                                </div>
+                                <div class="prev-ai-actions">
+                                    <button class="prev-btn-copy" id="demo-btn-copy" onclick="handleDemoCopy(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+                                    <button class="prev-btn-regen" id="demo-btn-regen" onclick="handleDemoRegen()"><i class="fa-solid fa-rotate"></i> Regenerate</button>
+                                    <button class="prev-btn-post" id="demo-btn-post" onclick="handleDemoPost()"><i class="fa-solid fa-paper-plane"></i> Post Reply</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="how-section" id="how">
+            <div class="section-head">
+                <span class="section-tag">Simple Process</span>
+                <h2 class="section-title">From Comments to Replies in <span class="grad-text">3 Steps</span></h2>
+                <p class="section-sub">No complexity. No learning curve. Just connect and start replying.</p>
+            </div>
+            <div class="steps-row">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-icon-wrap blue"><i class="fa-brands fa-youtube"></i></div>
+                    <h3>Connect Channel</h3>
+                    <p>Sign in with Google. We only request read & reply permissions — nothing else.</p>
+                </div>
+                <div class="step-connector">
+                    <div class="conn-line"></div>
+                    <i class="fa-solid fa-chevron-right conn-arrow"></i>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-icon-wrap purple"><i class="fa-solid fa-brain"></i></div>
+                    <h3>AI Analyzes Comments</h3>
+                    <p>Gemini reads your top comments, filters spam, and generates context-aware replies.</p>
+                </div>
+                <div class="step-connector">
+                    <div class="conn-line"></div>
+                    <i class="fa-solid fa-chevron-right conn-arrow"></i>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <div class="step-icon-wrap red"><i class="fa-solid fa-paper-plane"></i></div>
+                    <h3>Post in One Click</h3>
+                    <p>Review the reply, edit if you want, then click Post. It goes live on YouTube instantly.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="feat-section" id="features">
+            <div class="section-head">
+                <span class="section-tag">Features</span>
+                <h2 class="section-title">Everything You Need to <span class="grad-text">Engage Better</span></h2>
+            </div>
+            <div class="feat-grid">
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Spam Filter</h3>
+                    <p>Auto-removes spam, bots, and self-promo comments before you see them.</p>
+                </div>
+                <div class="feat-card highlight">
+                    <div class="feat-badge">Most Popular</div>
+                    <div class="feat-icon purple"><i class="fa-solid fa-robot"></i></div>
+                    <h3>AI Reply Generator</h3>
+                    <p>Gemini AI crafts personalized, tone-matched replies for each comment type.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Comment Clustering</h3>
+                    <p>Groups similar questions together so you can reply to many with one answer.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>One-Click Post</h3>
+                    <p>Post replies directly to YouTube without switching tabs or losing context.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fa-solid fa-film"></i></div>
+                    <h3>Videos & Shorts</h3>
+                    <p>Manage comments from both long-form videos and YouTube Shorts in one place.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fa-solid fa-lock"></i></div>
+                    <h3>Secure & Private</h3>
+                    <p>OAuth2 only. Your credentials are never stored on our servers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <div class="cta-glow"></div>
+            <h2>Ready to Reply <span class="grad-text">Smarter</span>?</h2>
+            <p>Join thousands of creators saving hours every week on comment engagement.</p>
+            <button class="btn-primary lg" onclick="showPage('login')">
+                <i class="fa-brands fa-youtube"></i> Get Started Free
+            </button>
+        </section>
+
+        <!-- Footer -->
+        <footer class="land-footer">
+            <div class="logo">
+                <div class="logo-icon sm"><i class="fa-brands fa-youtube"></i></div>
+                <span class="logo-text">Tube<strong>Replies</strong></span>
+            </div>
+            <p>© 2025 TubeReplies. Built for YouTube creators.</p>
+            <div class="footer-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Contact</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ════════════════════════════════════
+         PAGE 2 · LOGIN
+    ════════════════════════════════════ -->
+    <div id="page-login" class="page">
+        <div class="login-bg">
+            <div class="orb orb1"></div>
+            <div class="orb orb2"></div>
+            <div class="orb orb3"></div>
+        </div>
+        <div class="login-wrap">
+            <button class="btn-back-top" onclick="showPage('landing')">
+                <i class="fa-solid fa-arrow-left"></i> Back to Home
+            </button>
+            <div class="login-card">
+                <div class="login-logo">
+                    <div class="logo-icon xl"><i class="fa-brands fa-youtube"></i></div>
+                    <h2>Tube<span>Replies</span></h2>
+                    <p>Connect your YouTube channel to get started</p>
+                </div>
+                <div class="login-btns">
+                    <button class="btn-google" id="btn-google" onclick="handleGoogleLogin(event)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Continue with Google
+                    </button>
+                    <div class="or-divider"><span>or</span></div>
+                    <button class="btn-yt-connect" id="btn-yt" onclick="handleGoogleLogin(event)">
+                        <i class="fa-brands fa-youtube"></i> Connect YouTube Channel
+                    </button>
+                </div>
+                <div class="perm-card">
+                    <p class="perm-title"><i class="fa-solid fa-shield-check"></i> What we access</p>
+                    <div class="perm-row allow"><i class="fa-solid fa-check"></i><span>Read your channel's videos &amp; Shorts</span></div>
+                    <div class="perm-row allow"><i class="fa-solid fa-check"></i><span>Read comments on your videos</span></div>
+                    <div class="perm-row allow"><i class="fa-solid fa-check"></i><span>Post replies to comments</span></div>
+                    <div class="perm-row deny"><i class="fa-solid fa-xmark"></i><span>Never access emails or private data</span></div>
+                </div>
+                <p class="login-legal">By connecting you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         PAGE 3 · VIDEOS
+    ════════════════════════════════════ -->
+    <div id="page-videos" class="page">
+        <div class="app-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sb-v">
+                <div class="sb-top">
+                    <div class="logo sb-logo">
+                        <div class="logo-icon sm"><i class="fa-brands fa-youtube"></i></div>
+                        <span class="logo-text">Tube<strong>Replies</strong></span>
+                    </div>
+                    <div class="user-card">
+                        <div class="u-avatar" id="u-av-v">S</div>
+                        <div class="u-info">
+                            <span class="u-name">Sanjay Creator</span>
+                            <span class="u-handle">@sanjayjarvis</span>
+                        </div>
+                    </div>
+                    <nav class="sb-nav">
+                        <a class="sb-link active" onclick="setActiveLink(this)">
+                            <i class="fa-solid fa-film"></i><span>My Videos</span>
+                        </a>
+                        <a class="sb-link" onclick="setActiveLink(this)">
+                            <i class="fa-brands fa-youtube"></i><span>Shorts</span>
+                        </a>
+                        <a class="sb-link" onclick="setActiveLink(this)">
+                            <i class="fa-solid fa-chart-simple"></i><span>Analytics</span>
+                        </a>
+                        <a class="sb-link" onclick="setActiveLink(this)">
+                            <i class="fa-solid fa-gear"></i><span>Settings</span>
+                        </a>
+                    </nav>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                </button>
+            </aside>
+
+            <!-- Main -->
+            <main class="app-main">
+                <header class="app-hdr">
+                    <div class="hdr-left">
+                        <button class="menu-btn" onclick="toggleSidebar('sb-v')"><i class="fa-solid fa-bars"></i></button>
+                        <div>
+                            <h1 class="app-heading">My Videos</h1>
+                            <p class="app-subhead">Click any video to manage its comments</p>
+                        </div>
+                    </div>
+                    <div class="hdr-right">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Search videos..." id="vid-search" oninput="searchVideos(this.value)">
+                        </div>
+                        <div class="hdr-avatar">S</div>
+                    </div>
+                </header>
+
+                <div class="content-bar">
+                    <div class="tabs" id="vid-tabs">
+                        <button class="tab active" onclick="filterVideos('all',this)">All <span class="tab-count" id="tc-all">12</span></button>
+                        <button class="tab" onclick="filterVideos('video',this)">Videos <span class="tab-count" id="tc-vid">8</span></button>
+                        <button class="tab" onclick="filterVideos('short',this)">Shorts <span class="tab-count" id="tc-sht">4</span></button>
+                    </div>
+                    <div class="stat-chips">
+                        <div class="stat-chip"><i class="fa-solid fa-eye"></i> 2.4M views</div>
+                        <div class="stat-chip"><i class="fa-solid fa-comments"></i> 16,083 comments</div>
+                        <div class="stat-chip urgent"><i class="fa-solid fa-circle-dot"></i> 234 need replies</div>
+                    </div>
+                </div>
+
+                <div class="videos-grid" id="videos-grid"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════
+         PAGE 4 · COMMENTS
+    ════════════════════════════════════ -->
+    <div id="page-comments" class="page">
+        <div class="app-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sb-c">
+                <div class="sb-top">
+                    <div class="logo sb-logo">
+                        <div class="logo-icon sm"><i class="fa-brands fa-youtube"></i></div>
+                        <span class="logo-text">Tube<strong>Replies</strong></span>
+                    </div>
+                    <div class="user-card">
+                        <div class="u-avatar">S</div>
+                        <div class="u-info">
+                            <span class="u-name">Sanjay Creator</span>
+                            <span class="u-handle">@sanjayjarvis</span>
+                        </div>
+                    </div>
+                    <nav class="sb-nav">
+                        <a class="sb-link" onclick="showPage('videos')">
+                            <i class="fa-solid fa-film"></i><span>My Videos</span>
+                        </a>
+                        <a class="sb-link active" onclick="setActiveLink(this)">
+                            <i class="fa-solid fa-comments"></i><span>Comments</span>
+                        </a>
+                        <a class="sb-link" onclick="setActiveLink(this)">
+                            <i class="fa-solid fa-chart-simple"></i><span>Analytics</span>
+                        </a>
+                        <a class="sb-link" onclick="setActiveLink(this)">
+                            <i class="fa-solid fa-gear"></i><span>Settings</span>
+                        </a>
+                    </nav>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                </button>
+            </aside>
+
+            <!-- Main -->
+            <main class="app-main">
+                <header class="app-hdr">
+                    <div class="hdr-left">
+                        <button class="menu-btn" onclick="toggleSidebar('sb-c')"><i class="fa-solid fa-bars"></i></button>
+                        <button class="back-btn" onclick="showPage('videos')"><i class="fa-solid fa-arrow-left"></i></button>
+                        <div class="video-hdr-meta" id="video-hdr-meta">
+                            <div class="vid-thumb-mini" id="vid-thumb-mini"></div>
+                            <div>
+                                <h1 class="app-heading" id="cmt-vid-title">Loading…</h1>
+                                <p class="app-subhead" id="cmt-vid-stats">— views • — comments</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hdr-right">
+                        <div class="sort-wrap">
+                            <i class="fa-solid fa-arrow-up-wide-short"></i>
+                            <select class="sort-sel" onchange="sortComments(this.value)">
+                                <option value="replies">Most Replied</option>
+                                <option value="likes">Most Liked</option>
+                                <option value="recent">Most Recent</option>
+                            </select>
+                        </div>
+                        <div class="hdr-avatar">S</div>
+                    </div>
+                </header>
+
+                <div class="content-bar">
+                    <div class="tabs">
+                        <button class="tab active" onclick="filterComments('all',this)">All <span class="tab-count" id="cnt-all">10</span></button>
+                        <button class="tab" onclick="filterComments('question',this)">❓ Questions <span class="tab-count" id="cnt-question">0</span></button>
+                        <button class="tab" onclick="filterComments('positive',this)">❤️ Positive <span class="tab-count" id="cnt-positive">0</span></button>
+                        <button class="tab" onclick="filterComments('complaint',this)">⚠️ Complaints <span class="tab-count" id="cnt-complaint">0</span></button>
+                        <button class="tab" onclick="filterComments('funny',this)">😂 Funny <span class="tab-count" id="cnt-funny">0</span></button>
+                    </div>
+                    <div class="comments-actions-wrap">
+                        <div class="progress-container">
+                            <span class="progress-text" id="progress-text">0 of 10 Replied</span>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <button class="btn-bulk-gen" id="btn-bulk-gen" onclick="handleBulkGenerate()">
+                            <i class="fa-solid fa-sparkles"></i> Generate All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-list" id="comments-list"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="btn-scroll-top" class="btn-scroll-top" onclick="scrollToTop()">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+
     <script src="script.js"></script>
 </body>
 </html>
