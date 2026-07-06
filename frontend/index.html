@@ -9,9 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="scroll-progress"></div>
 
     <!-- ─── TOAST ─── -->
     <div id="toast" class="toast">
@@ -290,7 +292,7 @@
                         <a class="sb-link" onclick="setActiveLink(this)">
                             <i class="fa-brands fa-youtube"></i><span>Shorts</span>
                         </a>
-                        <a class="sb-link" onclick="setActiveLink(this)">
+                        <a class="sb-link" onclick="showPage('analytics')">
                             <i class="fa-solid fa-chart-simple"></i><span>Analytics</span>
                         </a>
                         <a class="sb-link" onclick="setActiveLink(this)">
@@ -367,7 +369,7 @@
                         <a class="sb-link active" onclick="setActiveLink(this)">
                             <i class="fa-solid fa-comments"></i><span>Comments</span>
                         </a>
-                        <a class="sb-link" onclick="setActiveLink(this)">
+                        <a class="sb-link" onclick="showPage('analytics')">
                             <i class="fa-solid fa-chart-simple"></i><span>Analytics</span>
                         </a>
                         <a class="sb-link" onclick="setActiveLink(this)">

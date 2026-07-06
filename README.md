@@ -17,7 +17,7 @@ TubeReplies is an AI-powered YouTube Comment Intelligence Tool built for creator
 1. Run the backend server:
    ```bash
    cd backend
-   python -m uvicorn main:app --port 8001
+   python -m uvicorn main:app --port 8000
    ```
 
 2. Serve the frontend static files:

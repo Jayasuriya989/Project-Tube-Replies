@@ -47,6 +47,7 @@ def generate_replies(comments):
     try:
         # Generate replies in a single batch API call
         ai_replies = generate_ai_replies_batch(texts)
+        print("AI REPLIES GENERATED:", ai_replies)
     except Exception as e:
         print("Failed to generate AI replies, falling back to rule-based replies. Error:", e)
         ai_replies = [None] * len(comments)

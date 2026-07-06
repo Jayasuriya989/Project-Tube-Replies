@@ -1,0 +1,18 @@
+App Idea: Tube Replies
+
+Target Audience: YouTube Creators who struggle to manage and reply to a large volume of comments on their videos.
+
+Core Workflow:
+1. Authentication: The creator logs into the portal using their YouTube credentials (OAuth 2.0).
+2. Video Dashboard: The portal fetches and displays a list of the creator's YouTube videos.
+3. Comment Moderation:
+   - When the creator clicks on a specific video, it loads the comments for that video.
+   - The comments are filtered/sorted to highlight the ones with the "most replies" (or other engagement metrics).
+4. AI-Powered Responses:
+   - For a selected comment, an AI generates a suggested contextual response.
+5. Direct Posting:
+   - The creator can review the AI-generated response.
+   - Upon clicking the "Post" button, the portal uses the YouTube Data API to directly post that reply under the specific user's comment on YouTube.
+
+Key Value Proposition:
+Saves creators significant time by automating the generation of context-aware replies and streamlining the comment moderation workflow directly from a single portal.
