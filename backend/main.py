@@ -212,5 +212,17 @@ def generate_single_reply(req: GenerateReplyRequest):
         raise HTTPException(status_code=500, detail=str(e))
 # Mount static frontend files
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend")
+
+# Explicit routes for legal pages required by Google OAuth verification
+@app.get("/privacy.html", include_in_schema=False)
+def privacy_policy():
+    from fastapi.responses import FileResponse
+    return FileResponse(os.path.join(frontend_dir, "privacy.html"), media_type="text/html")
+
+@app.get("/terms.html", include_in_schema=False)
+def terms_of_service():
+    from fastapi.responses import FileResponse
+    return FileResponse(os.path.join(frontend_dir, "terms.html"), media_type="text/html")
+
 if os.path.exists(frontend_dir):
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="static")
