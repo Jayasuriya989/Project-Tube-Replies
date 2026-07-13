@@ -1,7 +1,14 @@
 from sentence_transformers import SentenceTransformer
 
-# Load once when server starts
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# Lazy-loaded model (avoids OOM at startup on memory-constrained hosts)
+_model = None
+
+def _get_model():
+    """Lazily load the sentence-transformer model on first use."""
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _model
 
 
 def generate_embeddings(comments):
@@ -14,7 +21,7 @@ def generate_embeddings(comments):
     for comment in comments:
         texts.append(comment.clean_text)
 
-    embeddings = model.encode(
+    embeddings = _get_model().encode(
         texts,
         convert_to_numpy=True
     )

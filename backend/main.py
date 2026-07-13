@@ -148,7 +148,7 @@ def auth_callback(code: str):
         jwt_token = create_jwt_token(user_info, access_token)
         
         # Redirect back to the frontend with the token
-        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5500")
+        frontend_url = os.environ.get("FRONTEND_URL") or os.environ.get("RENDER_EXTERNAL_URL", "http://localhost:5500")
         return RedirectResponse(f"{frontend_url}/index.html?token={jwt_token}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

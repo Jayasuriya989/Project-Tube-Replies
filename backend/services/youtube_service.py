@@ -16,12 +16,20 @@ from config import API_KEY
 from models.comment_model import Comment
 from utils.text_cleaning import clean_text, is_question
 
-# Fallback developer key YouTube client
-youtube_public = build(
-    "youtube",
-    "v3",
-    developerKey=API_KEY
-)
+# Lazy-initialized public YouTube client (avoids crash if API_KEY is not set)
+_youtube_public = None
+
+def _get_youtube_public():
+    """Lazily create the public YouTube API client on first use."""
+    global _youtube_public
+    if _youtube_public is None:
+        if not API_KEY:
+            raise ValueError(
+                "YOUTUBE_API_KEY is not configured. "
+                "Set it in your environment variables or .env file."
+            )
+        _youtube_public = build("youtube", "v3", developerKey=API_KEY)
+    return _youtube_public
 
 def get_youtube_client(access_token):
     """Creates a YouTube API client authorized via the user's OAuth access token."""
@@ -46,7 +54,7 @@ def fetch_comments(video_id, limit=200):
             kwargs["pageToken"] = next_page_token
 
         try:
-            request = youtube_public.commentThreads().list(**kwargs)
+            request = _get_youtube_public().commentThreads().list(**kwargs)
             response = request.execute()
         except Exception as e:
             print("Error executing YouTube list request:", e)

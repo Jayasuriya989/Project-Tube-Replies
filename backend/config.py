@@ -10,22 +10,31 @@ load_dotenv(dotenv_path, override=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def _require_env(var_name: str) -> str:
-    """Return the environment variable value or raise a clear error.
-    This ensures required OAuth configuration is present at startup.
+def _get_env(var_name: str) -> str:
+    """Return the environment variable value or log a warning.
+    Returns empty string if not set so the app can still start.
     """
     value = os.getenv(var_name)
     if not value:
-        raise RuntimeError(f"Environment variable {var_name} is required but not set")
+        logger.warning(f"Environment variable {var_name} is not set. "
+                       f"Related features will be unavailable.")
+        return ""
     return value
 
 # Optional API key (YouTube)
 API_KEY = os.getenv("YOUTUBE_API_KEY") or os.getenv("API_KEY")
 
-# Required Google OAuth credentials
-GOOGLE_CLIENT_ID = _require_env("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = _require_env("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/callback")
+# Google OAuth credentials (warn if missing, don't crash)
+GOOGLE_CLIENT_ID = _get_env("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = _get_env("GOOGLE_CLIENT_SECRET")
 
-# JWT secret for signing tokens
-JWT_SECRET = _require_env("JWT_SECRET")
+# Auto-detect Render URL for redirect URIs
+_render_url = os.getenv("RENDER_EXTERNAL_URL", "")
+_default_redirect = f"{_render_url}/auth/callback" if _render_url else "http://localhost:8000/auth/callback"
+_default_frontend = _render_url if _render_url else "http://localhost:5500"
+
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", _default_redirect)
+FRONTEND_URL = os.getenv("FRONTEND_URL", _default_frontend)
+
+# JWT secret for signing tokens (warn if missing, don't crash)
+JWT_SECRET = _get_env("JWT_SECRET")
