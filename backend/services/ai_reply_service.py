@@ -12,14 +12,18 @@ load_dotenv(_dotenv_path, override=True)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-if not GEMINI_API_KEY:
-    raise RuntimeError(f"GEMINI_API_KEY not found. Looked for .env at: {_dotenv_path}")
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = None
+if GEMINI_API_KEY:
+    client = genai.Client(api_key=GEMINI_API_KEY)
+else:
+    import logging
+    logging.warning("GEMINI_API_KEY not found. AI reply features will be disabled.")
 MODEL = "gemini-2.5-flash"
 
 
 def generate_ai_reply(comment_text):
+    if client is None:
+        return None
     max_retries = 5
     base_delay = 5.0
     for attempt in range(max_retries):
@@ -66,6 +70,8 @@ Rules:
 
 
 def generate_ai_replies_batch(comments_text_list):
+    if client is None:
+        return [None] * len(comments_text_list)
     """
     Given a list of comment texts, returns a list of suggested reply texts of the same length.
     Raises ValueError if the generation fails.
