@@ -133,8 +133,13 @@ def get_current_user_token(authorization: Optional[str] = Header(None)):
 
 @app.get("/auth/login")
 def login():
-    url = get_google_auth_url()
-    return RedirectResponse(url)
+    try:
+        url = get_google_auth_url()
+        return RedirectResponse(url)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Login Error: {str(e)}")
 
 @app.get("/auth/callback")
 def auth_callback(code: str):
