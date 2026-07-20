@@ -313,47 +313,81 @@ async function initVideosPage() {
     renderVideos();
 }
 
-function renderVideoSkeletons() {
-    const grid = document.getElementById('videos-grid');
-    if (!grid) return;
-    let html = '';
-    for (let i = 0; i < 8; i++) {
-        html += `
-        <div class="video-card">
-            <div class="skeleton skeleton-thumb"></div>
-            <div class="vid-card-body">
-                <div class="skeleton skeleton-title"></div>
-                <div class="skeleton skeleton-meta"></div>
-            </div>
-        </div>`;
-    }
-    grid.innerHTML = html;
+function renderVideoSkeletons(count) {
+    const grid = document.getElementById('videos-grid');
+    if (!grid) return;
+    const n = count || 4;
+    let html = '';
+    for (let i = 0; i < n; i++) {
+        html += `
+        <div class="video-card">
+            <div class="skeleton skeleton-thumb"></div>
+            <div class="vid-card-body">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-meta"></div>
+            </div>
+        </div>`;
+    }
+    grid.innerHTML = html;
 }
 
-function renderVideos() {
-    const grid = document.getElementById('videos-grid');
-    if (!grid) return;
-
-    const q = state.videoSearch.toLowerCase().trim();
-    const filtered = VIDEOS.filter(v => {
-        const matchType = state.videoFilter === 'all' || v.type === state.videoFilter;
-        const matchQ    = !q || v.title.toLowerCase().includes(q);
-        return matchType && matchQ;
-    });
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `<div class="empty-state">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <p>No videos found. Try a different search term.</p>
-        </div>`;
-        return;
-    }
-
-    grid.innerHTML = filtered.map((v, i) => buildVideoCard(v, i)).join('');
-
-    grid.querySelectorAll('.video-card').forEach(card => {
-        card.addEventListener('click', () => openVideo(card.dataset.id));
-    });
+function updateVideoPageStats() {
+    // Counts
+    const total   = VIDEOS.length;
+    const vidCount = VIDEOS.filter(v => v.type === 'video').length;
+    const shtCount = VIDEOS.filter(v => v.type === 'short').length;
+    setText('tc-all', total);
+    setText('tc-vid', vidCount);
+    setText('tc-sht', shtCount);
+
+    // Aggregate stats
+    let totalViews = 0, totalComments = 0, totalNeedReply = 0;
+    VIDEOS.forEach(v => {
+        // views can be a number or a string like "2.4M"
+        let vv = v.views;
+        if (typeof vv === 'string') {
+            vv = parseFloat(vv.replace(/K$/i,'e3').replace(/M$/i,'e6')) || 0;
+        }
+        totalViews += (vv || 0);
+        totalComments += (v.commentCount || 0);
+        totalNeedReply += Math.max(1, Math.floor((v.commentCount || 0) * 0.08));
+    });
+
+    const viewsEl = document.getElementById('stat-views');
+    const cmtEl   = document.getElementById('stat-comments');
+    const needEl  = document.getElementById('stat-need');
+    if (viewsEl)  viewsEl.innerHTML = `<i class="fa-solid fa-eye"></i> ${formatNum(totalViews)} views`;
+    if (cmtEl)    cmtEl.innerHTML   = `<i class="fa-solid fa-comments"></i> ${formatNum(totalComments)} comments`;
+    if (needEl)   needEl.innerHTML  = `<i class="fa-solid fa-circle-dot"></i> ${totalNeedReply} need replies`;
+}
+
+function renderVideos() {
+    const grid = document.getElementById('videos-grid');
+    if (!grid) return;
+
+    const q = state.videoSearch.toLowerCase().trim();
+    const filtered = VIDEOS.filter(v => {
+        const matchType = state.videoFilter === 'all' || v.type === state.videoFilter;
+        const matchQ    = !q || v.title.toLowerCase().includes(q);
+        return matchType && matchQ;
+    });
+
+    // Always update tab counts + stat chips based on full VIDEOS list
+    updateVideoPageStats();
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <p>No videos found. Try a different search term.</p>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = filtered.map((v, i) => buildVideoCard(v, i)).join('');
+
+    grid.querySelectorAll('.video-card').forEach(card => {
+        card.addEventListener('click', () => openVideo(card.dataset.id));
+    });
 }
 
 function buildVideoCard(v, index = 0) {

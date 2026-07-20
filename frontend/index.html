@@ -358,14 +358,14 @@
 
                 <div class="content-bar">
                     <div class="tabs" id="vid-tabs">
-                        <button class="tab active" onclick="filterVideos('all',this)">All <span class="tab-count" id="tc-all">12</span></button>
-                        <button class="tab" onclick="filterVideos('video',this)">Videos <span class="tab-count" id="tc-vid">8</span></button>
-                        <button class="tab" onclick="filterVideos('short',this)">Shorts <span class="tab-count" id="tc-sht">4</span></button>
+                        <button class="tab active" onclick="filterVideos('all',this)">All <span class="tab-count" id="tc-all">0</span></button>
+                        <button class="tab" onclick="filterVideos('video',this)">Videos <span class="tab-count" id="tc-vid">0</span></button>
+                        <button class="tab" onclick="filterVideos('short',this)">Shorts <span class="tab-count" id="tc-sht">0</span></button>
                     </div>
                     <div class="stat-chips">
-                        <div class="stat-chip"><i class="fa-solid fa-eye"></i> 2.4M views</div>
-                        <div class="stat-chip"><i class="fa-solid fa-comments"></i> 16,083 comments</div>
-                        <div class="stat-chip urgent"><i class="fa-solid fa-circle-dot"></i> 234 need replies</div>
+                        <div class="stat-chip" id="stat-views"><i class="fa-solid fa-eye"></i> — views</div>
+                        <div class="stat-chip" id="stat-comments"><i class="fa-solid fa-comments"></i> — comments</div>
+                        <div class="stat-chip urgent" id="stat-need"><i class="fa-solid fa-circle-dot"></i> — need replies</div>
                     </div>
                 </div>
 

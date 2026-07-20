@@ -109,6 +109,12 @@ button { cursor:pointer; border:none; outline:none; background:none; }
 }
 .page.exit { opacity:0; transform:translateY(-10px); }
 
+/* App pages: no Y-translate — height:100vh layout means any Y offset = visible blank gap */
+#page-videos, #page-comments {
+    transform: none !important;
+    transition: opacity var(--t-mid) var(--ease) !important;
+}
+
 /* ── Toast ── */
 .toast {
     position:fixed;
@@ -630,6 +636,7 @@ button { cursor:pointer; border:none; outline:none; background:none; }
 .app-layout {
     display:flex;
     height:100vh;
+    width:100%;
     overflow:hidden;
 }
 
