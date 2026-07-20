@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    TubeReplies — Frontend Logic (No Backend / Mock Data)
    ============================================================ */
 
@@ -1080,100 +1080,187 @@ document.addEventListener('DOMContentLoaded', () => {
         const percent = (scrolled / max) * 100;
         bar.style.width = percent + '%';
     });
-});
-
-// ─────────────────────────────────────────
-//  ANALYTICS PAGE
-// ─────────────────────────────────────────
-
-let viewsChartInst = null;
-let commentsChartInst = null;
-
-function initAnalyticsPage() {
-    if (!VIDEOS || VIDEOS.length === 0) return;
-
-    let totalViews = 0;
-    let totalComments = 0;
-    const labels = [];
-    const viewsData = [];
-    const commentsData = [];
-
-    // Assuming we want to look at the latest 10 videos for charts
-    const recentVideos = VIDEOS.slice(0, 10).reverse();
-
-    VIDEOS.forEach(v => {
-        // Handle "K" and "M" suffixes naively for mock data fallback, but actual backend sends integers usually
-        let vCount = 0;
-        if (typeof v.views === 'string') {
-            vCount = parseFloat(v.views.replace('K', 'e3').replace('M', 'e6')) || 0;
-        } else {
-            vCount = v.views;
-        }
-        totalViews += vCount;
-        totalComments += v.commentCount || 0;
-    });
-
-    recentVideos.forEach(v => {
-        labels.push(v.title.length > 20 ? v.title.substring(0, 20) + '...' : v.title);
-        let vCount = typeof v.views === 'string' ? parseFloat(v.views.replace('K', 'e3').replace('M', 'e6')) : v.views;
-        viewsData.push(vCount);
-        commentsData.push(v.commentCount);
-    });
-
-    const engagement = totalViews > 0 ? ((totalComments / totalViews) * 100).toFixed(2) : 0;
-
-    setText('kpi-views', formatNum(totalViews));
-    setText('kpi-comments', formatNum(totalComments));
-    setText('kpi-engagement', engagement + '%');
-
-    // Chart.js Setup
-    const ctxViews = document.getElementById('viewsChart');
-    const ctxComments = document.getElementById('commentsChart');
-
-    if (viewsChartInst) viewsChartInst.destroy();
-    if (commentsChartInst) commentsChartInst.destroy();
-
-    Chart.defaults.color = '#8888aa';
-    Chart.defaults.font.family = 'Inter';
-
-    if (ctxViews) {
-        viewsChartInst = new Chart(ctxViews, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Views',
-                    data: viewsData,
-                    backgroundColor: 'rgba(124, 58, 237, 0.6)',
-                    borderColor: 'rgba(124, 58, 237, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    }
-
-    if (ctxComments) {
-        commentsChartInst = new Chart(ctxComments, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Comments',
-                    data: commentsData,
-                    backgroundColor: 'rgba(255, 34, 51, 0.2)',
-                    borderColor: 'rgba(255, 34, 51, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    }
-}
+});
 
+// ─────────────────────────────────────────
+//  ANALYTICS PAGE
+// ─────────────────────────────────────────
+
+let viewsChartInst    = null;
+let commentsChartInst = null;
+let categoryChartInst = null;
+
+function initAnalyticsPage() {
+    if (!VIDEOS || VIDEOS.length === 0) return;
+
+    var totalViews = 0, totalComments = 0;
+    var labels = [], viewsData = [], commentsData = [];
+    var sortedByComments = VIDEOS.slice().sort(function(a, b) { return (b.commentCount || 0) - (a.commentCount || 0); });
+    var recentVideos = VIDEOS.slice(0, 10).reverse();
+
+    VIDEOS.forEach(function(v) {
+        var vv = v.views;
+        if (typeof vv === 'string') vv = parseFloat(vv.replace(/K$/i,'e3').replace(/M$/i,'e6')) || 0;
+        totalViews += (vv || 0);
+        totalComments += (v.commentCount || 0);
+    });
+
+    recentVideos.forEach(function(v) {
+        labels.push(v.title.length > 18 ? v.title.substring(0, 18) + '…' : v.title);
+        var vv = v.views;
+        if (typeof vv === 'string') vv = parseFloat(vv.replace(/K$/i,'e3').replace(/M$/i,'e6')) || 0;
+        viewsData.push(vv);
+        commentsData.push(v.commentCount || 0);
+    });
+
+    var vidCount = VIDEOS.filter(function(v) { return v.type === 'video'; }).length;
+    var shtCount = VIDEOS.filter(function(v) { return v.type === 'short'; }).length;
+    var engagement = totalViews > 0 ? ((totalComments / totalViews) * 100).toFixed(2) : '0.00';
+
+    setText('kpi-views',      formatNum(totalViews));
+    setText('kpi-comments',   formatNum(totalComments));
+    setText('kpi-engagement', engagement + '%');
+    setText('kpi-videos',     vidCount + ' / ' + shtCount);
+
+    Chart.defaults.color = '#8888aa';
+    Chart.defaults.font.family = 'Inter';
+
+    if (viewsChartInst)    viewsChartInst.destroy();
+    if (commentsChartInst) commentsChartInst.destroy();
+    if (categoryChartInst) categoryChartInst.destroy();
+
+    var ctxViews = document.getElementById('viewsChart');
+    if (ctxViews) {
+        viewsChartInst = new Chart(ctxViews, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Views',
+                    data: viewsData,
+                    backgroundColor: 'rgba(124,58,237,0.55)',
+                    borderColor: 'rgba(124,58,237,1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { maxRotation: 30 } },
+                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true,
+                        ticks: { callback: function(v) { return formatNum(v); } } }
+                }
+            }
+        });
+    }
+
+    var ctxComments = document.getElementById('commentsChart');
+    if (ctxComments) {
+        commentsChartInst = new Chart(ctxComments, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Comments',
+                    data: commentsData,
+                    backgroundColor: 'rgba(255,34,51,0.15)',
+                    borderColor: 'rgba(255,34,51,1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(255,34,51,1)',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { maxRotation: 30 } },
+                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    var cats = { question: 0, positive: 0, complaint: 0, funny: 0, other: 0 };
+    COMMENTS.forEach(function(c) {
+        if (c.category in cats) cats[c.category]++;
+        else cats.other++;
+    });
+    var catLabels = ['Questions','Positive','Complaints','Funny','Other'];
+    var catColors = ['#3b82f6','#22c55e','#ef4444','#f59e0b','#8b5cf6'];
+    var catData   = [cats.question, cats.positive, cats.complaint, cats.funny, cats.other];
+    var catTotal  = catData.reduce(function(a, b) { return a + b; }, 0);
+
+    var ctxCat = document.getElementById('categoryChart');
+    if (ctxCat) {
+        categoryChartInst = new Chart(ctxCat, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catData,
+                    backgroundColor: catColors,
+                    borderWidth: 2,
+                    borderColor: '#0d0d1a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                cutout: '68%'
+            }
+        });
+    }
+
+    var legendEl = document.getElementById('an-legend');
+    if (legendEl) {
+        legendEl.innerHTML = catLabels.map(function(lbl, i) {
+            var pct = catTotal > 0 ? Math.round((catData[i] / catTotal) * 100) : 0;
+            return '<div class="an-legend-row">' +
+                '<div class="an-legend-dot" style="background:' + catColors[i] + '"></div>' +
+                '<span>' + lbl + '</span>' +
+                '<span class="an-legend-pct">' + pct + '%</span>' +
+                '</div>';
+        }).join('');
+    }
+
+    var tbody = document.getElementById('an-table-body');
+    if (tbody) {
+        var top5 = sortedByComments.slice(0, 5);
+        var medals = ['🥇','🥈','🥉','4','5'];
+        tbody.innerHTML = top5.map(function(v, i) {
+            var vv = v.views;
+            if (typeof vv === 'string') vv = parseFloat(vv.replace(/K$/i,'e3').replace(/M$/i,'e6')) || 0;
+            return '<tr>' +
+                '<td><span class="rank-num">' + medals[i] + '</span></td>' +
+                '<td><span class="vid-name" title="' + v.title + '">' + v.title + '</span></td>' +
+                '<td>' + formatNum(vv) + '</td>' +
+                '<td>' + formatNum(v.commentCount || 0) + '</td>' +
+                '<td><span class="type-badge ' + v.type + '" style="position:static;font-size:11px">' +
+                    (v.type === 'short' ? '⚡ Short' : '🎬 Video') + '</span></td>' +
+                '</tr>';
+        }).join('') || '<tr><td colspan="5" class="an-table-empty">No videos yet</td></tr>';
+    }
+
+    var replied   = state.posted.size;
+    var generated = state.generated.size;
+    var pending   = Math.max(0, (COMMENTS.length || 0) - replied);
+    var sessionPct = COMMENTS.length > 0 ? Math.round((replied / COMMENTS.length) * 100) : 0;
+
+    setText('an-replied',     replied);
+    setText('an-generated',   generated);
+    setText('an-pending',     pending);
+    setText('an-session-pct', sessionPct + '%');
+    var fillEl = document.getElementById('an-session-fill');
+    if (fillEl) fillEl.style.width = sessionPct + '%';
+}
 
 // ─────────────────────────────────────────
 //  SIDEBAR TOGGLE (responsive)
@@ -1217,7 +1304,7 @@ function toggleSidebar(sbId) {
 
 window.addEventListener('resize', function() {
     if (window.innerWidth > 768) {
-        ['sb-v', 'sb-c'].forEach(function(id) {
+        ['sb-v', 'sb-c', 'sb-a'].forEach(function(id) {
             var sb = document.getElementById(id);
             if (sb) {
                 sb.classList.remove('collapsed');
